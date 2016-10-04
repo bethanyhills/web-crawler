@@ -1,6 +1,5 @@
 import sys
 import datetime
-import pdb
 import sqlite3
 import urllib.request
 from bs4 import BeautifulSoup
@@ -63,11 +62,8 @@ class pageMagic(object):
         except urllib.error.URLError as e:
             #to do- write error to db
             self.error = str(e)
-            #print (e.data)
         except ValueError as e:
             self.error = str(e)
-            print (self.url)
-            print (e)
 
     def keywordSearch(self, keyword):
         self.soup = BeautifulSoup(self.html, 'html.parser')
@@ -86,7 +82,10 @@ class pageMagic(object):
                 pass
             else:
                 #create full comain by appending subdomain. ex. 'http://www.hillaryclinton.com' + '/issues'
-                link = self.url[:-1] + link
+                if self.url.endswith('/'):
+                    link = self.url[:-1] + link
+                else:
+                    link = self.url + link
             links.append(link)
         return links
 
@@ -119,11 +118,6 @@ def spider(start_url, keyword, max_tries):
                 db.create(link)
 
         #update with page info we found
-        print (page.crawled)
-        print (page.keyword)
-        print (page.date)
-        print (page.error)
-        print (page.url)
         db.update_entry(page)
         counter = counter + 1
 
