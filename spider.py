@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import pdb
 import sqlite3
 import urllib.request
 from bs4 import BeautifulSoup
@@ -14,16 +15,13 @@ class dbPages(object):
         self.cur = self.conn.cursor()
         # keyword: T/F if keyword exists, date: date of crawl, error: store error
         self.cur.execute('''CREATE TABLE IF NOT EXISTS Pages
-            (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT UNIQUE,
+            (id INTEGER PRIMARY KEY, url TEXT UNIQUE,
              keyword INTEGER, date TEXT, error TEXT, crawled INTEGER)''')
         self.conn.commit()
 
     #create new entry
     def create(self, url):
         self.cur.execute('INSERT OR IGNORE INTO Pages (url) VALUES ( ? )', (url,))
-
-        #cur.execute('INSERT OR IGNORE INTO Pages (url, html, new_rank) VALUES ( ?, NULL, 1.0 )', (url,))
-
         self.conn.commit()
 
     #get next url to crawl
@@ -60,18 +58,21 @@ class pageMagic(object):
         try:
             with urllib.request.urlopen(self.url) as response:
                 self.html = response.read()
+            self.crawled = 1
         #http error etc. ex <urlopen error [Errno 8] nodename nor servname provided, or not known>
         except urllib.error.URLError as e:
             #to do- write error to db
-            self.error = e
+            self.error = str(e)
             #print (e.data)
+        except ValueError as e:
+            self.error = str(e)
+            print (self.url)
+            print (e)
 
     def keywordSearch(self, keyword):
         self.soup = BeautifulSoup(self.html, 'html.parser')
         if keyword in self.soup.get_text():
-            print (keyword + ' found!')
             self.keyword = 1
-            self.crawled = 1
 
     def getLinks(self):
         links = []
@@ -79,12 +80,18 @@ class pageMagic(object):
             link = item.get('href')
             if not link:
                 continue
+            substring = ['http', 'https', 'www']
+            if any(x in link for x in substring):
+                #valid link, do nothing
+                pass
             else:
-                links.append(link)
+                #create full comain by appending subdomain. ex. 'http://www.hillaryclinton.com' + '/issues'
+                link = self.url[:-1] + link
+            links.append(link)
         return links
 
 
-def spider(start_url, keyword, max_urls):
+def spider(start_url, keyword, max_tries):
     counter = 0
     #initialize db
     db = dbPages()
@@ -93,10 +100,9 @@ def spider(start_url, keyword, max_urls):
     #create first entry
     db.create(start_url)
 
-    while counter <= max_urls:
+    while counter <= max_tries:
         #get the next url that hasn't been crawled
         row = db.get_next()
-        print (row)
 
         #start crawl
         page = pageMagic(row[0])
@@ -108,13 +114,19 @@ def spider(start_url, keyword, max_urls):
             #get links on page
             links = page.getLinks()
             for link in links:
-                #write to db for spidering
+                #write to db for future spidering
                 db.create(link)
 
         #update with page info we found
+        print (page.crawled)
+        print (page.keyword)
+        print (page.date)
+        print (page.error)
+        print (page.url)
         db.update_entry(page)
         counter = counter + 1
 
-    print (str(max_urls) + ' crawled!')
+    print (str(max_urls) + ' urls attempted!')
 
 #spider("http://isthelakefullyet.com/", "Lake", 2)
+spider("https://www.hillaryclinton.com", "Stronger", 100)
