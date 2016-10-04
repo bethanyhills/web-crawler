@@ -1,5 +1,5 @@
 # web-crawler
-Web crawler that searches HTML pages for a keyword and updates the DB accordingly.
+Web crawler that searches HTML pages for a keyword and updates the DB accordingly. Goal is to visualize the data using D3.
 
 Uses python, sqlite, beautiful soup and urllib
 
