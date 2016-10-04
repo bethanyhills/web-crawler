@@ -1,3 +1,4 @@
+import argparse
 import sqlite3
 import urllib.request
 from bs4 import BeautifulSoup
@@ -8,6 +9,10 @@ from bs4 import BeautifulSoup
 
 conn = sqlite3.connect('db.sqlite')
 cur = conn.cursor()
+
+cur.execute('''CREATE TABLE IF NOT EXISTS Pages
+    (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT UNIQUE, html TEXT,
+     keyword INTEGER, date TEXT)''')
 
 class pageMagic(object):
     def __init__(self, url):
