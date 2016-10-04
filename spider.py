@@ -2,7 +2,8 @@ import sys
 import datetime
 import sqlite3
 import pdb
-import urllib.request
+import urllib
+from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 
 from text import parse_text, parse_links
@@ -13,7 +14,7 @@ from text import parse_text, parse_links
 
 class dbPages(object):
     def connect(self):
-        self.conn = sqlite3.connect('db.sqlite')
+        self.conn = sqlite3.connect('hillary.sqlite')
         self.cur = self.conn.cursor()
         # keyword: T/F if keyword exists, date: date of crawl, error: store error
         self.cur.execute('''CREATE TABLE IF NOT EXISTS Pages
@@ -23,10 +24,6 @@ class dbPages(object):
         self.cur.execute('''CREATE TABLE IF NOT EXISTS Words
             (id INTEGER PRIMARY KEY, word TEXT UNIQUE,
              count INTEGER )''')
-        self.conn.commit()
-
-
-
         self.conn.commit()
 
     #create new entry
@@ -52,11 +49,18 @@ class dbPages(object):
                     (page.crawled, page.date, page.error, page.url))
         self.conn.commit()
 
-    def create_or_update_word(self, word_info):
-        self.cur.execute('INSERT OR IGNORE INTO Words (word, count) VALUES( ?, ?)', (word_info.word, word_info.count))
-        #TODO - this will reincrement if we create the word and then update it.
-        self.cur.execute('UPDATE Words SET count=count+? WHERE word=?', (word_info.count, word_info.word))
+    def create_word(self, word, count):
+        self.cur.execute('INSERT OR IGNORE INTO Words (word, count) VALUES( ?, ?)', (word, count))
         self.conn.commit()
+
+    def update_word(self, word, count):
+        self.cur.execute('UPDATE Words SET count=count+? WHERE word=?', (count, word))
+        self.conn.commit()
+
+    def get_word(self, word):
+        self.cur.execute('SELECT id, word FROM Words WHERE word=?', (word, ))
+        row = self.cur.fetchone()
+        return row
 
 class pageMagic(object):
     def __init__(self, url):
@@ -71,8 +75,11 @@ class pageMagic(object):
 
     def fetchHTML(self):
         try:
-            with urllib.request.urlopen(self.url) as response:
-                self.html = response.read()
+            req = Request(self.url, headers={'User-Agent': 'Mozilla/5.0'} )
+            self.html = urlopen(req).read()
+            print (self.html)
+            # with urllib.request.urlopen(self.url) as response:
+            #     self.html = response.read()
             self.crawled = 1
         #http error etc. ex <urlopen error [Errno 8] nodename nor servname provided, or not known>
         except urllib.error.URLError as e:
@@ -84,17 +91,21 @@ class pageMagic(object):
 
     def wordCount(self):
         self.soup = BeautifulSoup(self.html, 'html.parser')
-        x = parse_text(self.soup)
+        words = parse_text(self.soup)
+        print (words)
+        return words
 
 
     def getLinks(self):
+        self.soup = BeautifulSoup(self.html, 'html.parser')
         a = self.soup.find_all('a')
         links = parse_links(a, self.url)
-
+        print (links)
+        return links
 
 def spider(start_url, max_tries):
     test = True
-    counter = 0
+    counter = 1
     #initialize db
     db = dbPages()
     db.connect()
@@ -111,17 +122,23 @@ def spider(start_url, max_tries):
         page.fetchHTML()
         #if we can access the html, search for our keyword and links
         if not page.error:
-            page.topHundred()
-
-            #get links on page
+            words = page.wordCount()
+            for count, word in enumerate(words):
+                if db.get_word(word):
+                    db.update_word(word, count)
+                    print ('updated ' + word)
+                else:
+                    db.create_word(word, count)
+            # get links on page
             links = page.getLinks()
             for link in links:
-                #write to db for future spidering
+                # write to db for future spidering
                 db.create_url(link)
 
         #update with page info we found
         db.update_url(page)
         counter = counter + 1
+        print (counter)
 
     print (str(max_tries) + ' urls attempted!')
 

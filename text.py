@@ -21,26 +21,30 @@ def parse_text(soup_text):
     return word_counts
 
 def parse_links(link_text, domain):
+    links = []
     for item in link_text:
         link = item.get('href')
         if not link:
             continue
+        #check full URLS
         substring = ['http', 'https', 'www']
-        if not any(x in link for x in substring):
-            # valid link, do nothing
-            pass
+        if any(x in link for x in substring):
+            if check_domain(domain, link):
+                links.append(link)
+       #Format partial URLS
         else:
-            # create full domain by appending subdomain. ex. 'http://www.hillaryclinton.com' + '/issues'
-            if self.url.endswith('/'):
-                link = self.url[:-1] + link
+            #ex. 'http://www.hillaryclinton.com' + '/issues'
+            if domain.endswith('/'):
+                full_link = domain[:-1] + link
+                links.append(full_link)
             else:
-                link = self.url + link
-        if check_domain(domain, link):
-            links.append(link)
+                full_link = domain + link
+                links.append(full_link)
     return links
 
 #limit our spidering to specific domain
 def check_domain(domain, link):
+    domain = domain.replace('https://', '')
     if domain in link:
         return True
     else:
