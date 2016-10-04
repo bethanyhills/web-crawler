@@ -1,14 +1,14 @@
 # web-crawler
-Web crawler that searches HTML pages for a keyword and updates the DB accordingly. Goal is to visualize the data using D3.
+Web crawler that spiders URLs for a given domain, parses HTML, records words & frequency, and visualizes it in D3 for a given domain.
 
-Uses python, sqlite, beautiful soup and urllib
+Uses python, sqlite, beautiful soup, urllib, enchant, textblob
 
 #To run:
 1. Confirm you have sqlite installed
 2. Clone this repo
 3. Install the requirements
-4. from the command line, run the program with your desired parameters (starting URL, keyword, # of URLs to spider). 
-  Ex. python spider.py "https://www.hillaryclinton.com" "Stronger" 100
+4. from the command line, run the program with your desired parameters (starting URL, # of URLs to spider for this domain). 
+  Ex. python spider.py "https://www.hillaryclinton.com" 100
   
-#To Do:
-Add data visualization element to spidered data using D3
+#Goal:
+Use D3 to visualize this data for the domain of each presidential candidate.
