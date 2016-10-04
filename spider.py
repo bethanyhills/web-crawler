@@ -1,4 +1,4 @@
-import argparse
+import sys
 import datetime
 import pdb
 import sqlite3
@@ -92,6 +92,7 @@ class pageMagic(object):
 
 
 def spider(start_url, keyword, max_tries):
+
     counter = 0
     #initialize db
     db = dbPages()
@@ -100,7 +101,7 @@ def spider(start_url, keyword, max_tries):
     #create first entry
     db.create(start_url)
 
-    while counter <= max_tries:
+    while counter <= int(max_tries):
         #get the next url that hasn't been crawled
         row = db.get_next()
 
@@ -128,5 +129,7 @@ def spider(start_url, keyword, max_tries):
 
     print (str(max_urls) + ' urls attempted!')
 
-#spider("http://isthelakefullyet.com/", "Lake", 2)
-spider("https://www.hillaryclinton.com", "Stronger", 100)
+spider(sys.argv[1], sys.argv[2], sys.argv[3])
+
+#python spider.py "https://www.hillaryclinton.com" "Stronger" 100
+
