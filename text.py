@@ -1,5 +1,6 @@
 from collections import Counter
 import enchant
+from numpy import interp
 import re
 
 def parse_text(soup_text):
@@ -13,7 +14,7 @@ def parse_text(soup_text):
         words = new_string.split(' ')
         for word in words:
             #check this is a word in the english language
-            if word:
+            if len(word) > 3 and len(word) < 25:
                 if d.check(word):
                     word = word.lower()
                     strings.append(word)
@@ -52,8 +53,20 @@ def check_domain(domain, link):
     else:
         return False
 
+def map_to_range(rows):
+    max = 0
+    min = 1000
+    for row in rows:
+        if row[1] > max:
+            max = row[1]
+        if row[1] < min:
+            min = row[1]
+    return [min, max]
+
 #write data to js file
 def to_js(rows):
+    range = map_to_range(rows)
+
     print('writing file')
     writer = open('words.js', 'w')
     writer.write("words = [")
@@ -62,7 +75,8 @@ def to_js(rows):
         if not first: writer.write(",\n")
         first = False
         word = row[0]
-        count = row[1]
-        writer.write("{word: '" + word + "', count: " + str(count) + "}")
+        count = round(interp(row[1], [range[0], range[1]], [0, 50]))
+        #count = round(row[1] / 100)
+        writer.write("{text: '" + word + "', size: " + str(count) + "}")
     writer.write("\n];\n")
     writer.close()

@@ -27,6 +27,7 @@ def spider(start_url, max_tries):
         #if we can access the html, search for our keyword and links
         if not page.error:
             words = page.wordCount()
+            print (len(words))
             for count, word in enumerate(words):
                 if db.get_word(word):
                     db.update_word(word, count)
