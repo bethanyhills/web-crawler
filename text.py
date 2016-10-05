@@ -3,6 +3,7 @@ import enchant
 import re
 
 def parse_text(soup_text):
+    print ('parsing text')
     strings = []
     d = enchant.Dict("en_US")
     for string in soup_text.stripped_strings:
@@ -21,6 +22,7 @@ def parse_text(soup_text):
     return word_counts
 
 def parse_links(link_text, domain):
+    print ('parsing links')
     links = []
     for item in link_text:
         link = item.get('href')
@@ -49,3 +51,18 @@ def check_domain(domain, link):
         return True
     else:
         return False
+
+#write data to js file
+def to_js(rows):
+    print('writing file')
+    writer = open('words.js', 'w')
+    writer.write("words = [")
+    first = True
+    for row in rows:
+        if not first: writer.write(",\n")
+        first = False
+        word = row[0]
+        count = row[1]
+        writer.write("{word: '" + word + "', count: " + str(count) + "}")
+    writer.write("\n];\n")
+    writer.close()
