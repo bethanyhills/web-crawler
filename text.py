@@ -29,6 +29,8 @@ def parse_links(link_text, domain):
         link = item.get('href')
         if not link:
             continue
+        if ';' in link:
+            continue
         #check full URLS
         substring = ['http', 'https', 'www']
         if any(x in link for x in substring):
@@ -68,14 +70,14 @@ def to_js(rows):
     range = map_to_range(rows)
 
     print('writing file')
-    writer = open('words.js', 'w')
-    writer.write("words = [")
+    writer = open('words_trump.js', 'w')
+    writer.write("words_trump = [")
     first = True
     for row in rows:
         if not first: writer.write(",\n")
         first = False
         word = row[0]
-        count = round(interp(row[1], [range[0], range[1]], [0, 50]))
+        count = round(interp(row[1], [range[0], range[1]], [0, 40]))
         #count = round(row[1] / 100)
         writer.write("{text: '" + word + "', size: " + str(count) + "}")
     writer.write("\n];\n")

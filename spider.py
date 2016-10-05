@@ -18,11 +18,13 @@ def spider(start_url, max_tries):
     #crawl the domain
     while counter <= int(max_tries):
         print ('spidering link number ' + str(counter))
+
         #get the next url that hasn't been crawled
         row = db.get_next_url()
 
         #start crawl
         page = pageMagic(row[0])
+        print (page.url)
         page.fetchHTML()
         #if we can access the html, search for our keyword and links
         if not page.error:

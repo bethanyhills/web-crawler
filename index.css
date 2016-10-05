@@ -5,3 +5,11 @@ body {
 .bld {
     font-weight: bold;
 }
+
+.left-side {
+    height: 900px;
+}
+
+.right-side {
+    height: 900px;
+}

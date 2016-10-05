@@ -8,7 +8,7 @@ from text import parse_text, parse_links
 
 class dbPages(object):
     def connect(self):
-        self.conn = sqlite3.connect('hillary2.sqlite')
+        self.conn = sqlite3.connect('trump.sqlite')
         self.cur = self.conn.cursor()
         # keyword: T/F if keyword exists, date: date of crawl, error: store error
         self.cur.execute('''CREATE TABLE IF NOT EXISTS Pages
