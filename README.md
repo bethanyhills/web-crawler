@@ -1,7 +1,7 @@
 # web-crawler
 Web crawler that spiders URLs for a given domain, parses HTML, records words & frequency, and visualizes it in D3 for a given domain.
 
-Uses python, sqlite, beautiful soup, urllib, enchant, textblob
+Uses python, sqlite, beautiful soup, urllib, enchant, textblob, javascript, D3
 
 #To run:
 1. Confirm you have sqlite installed
