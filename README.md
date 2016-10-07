@@ -11,5 +11,5 @@ Uses python, sqlite, beautiful soup, urllib, enchant, textblob
   Ex. python spider.py "https://www.hillaryclinton.com" 100
   
 #Live:
-This web crawler was used to power a D3 word cloud of the most frequent words on each of the 2016 presidential candidate websites: https://bethanyhills.github.io/
+This web crawler was used to power a D3 word cloud of the most frequent words on each of the 2016 presidential candidate websites: http://www.potentialprezsays.com/
 
