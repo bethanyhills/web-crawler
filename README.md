@@ -1,5 +1,5 @@
 # web-crawler
-Web crawler that spiders URLs for a given domain, parses HTML, records words & frequency, and visualizes it in D3 for a given domain.
+Web crawler that spiders URLs for a given domain, parses HTML for text and links, records words & frequency. The data is then be queried and manipulated for use in data visualizations.
 
 Uses python, sqlite, beautiful soup, urllib, enchant, textblob
 
